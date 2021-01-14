@@ -4,13 +4,12 @@
     "userId": "user-id",
     "event": "my-event",
     "timestamp": "2014",
-    "properties": {
-      "revenue": 19.99,
-      "property": true
-    },
+    "properties": {},
     "traits": {
-      "name": "Dumitru Ovidiu",
+      "firstName": "Dumitru",
+      "lastName": "Ovidiu",
       "email": "nitanovidiu@metarouter.io",
+      "phone": "+40749475338",
       "company": {
         "name": "Astronomer Software"
       }

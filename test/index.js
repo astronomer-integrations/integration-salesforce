@@ -5,10 +5,35 @@ const Salesforce = require('..');
 describe('Salesforce', () => {
   beforeEach(() => {
     settings = {
-      clientId: '3MVG98hdjyNB1QTlnja1yQDO.Hr7idXRUheY0vNfz41r6.54HP5jjyKaqjfFZ7bIfpdF6C8CNHUbDepdtNfKu',
-      clientSecret: '0E483E670FC69735380284A44894B72076179AC1F14C9E063408F7D65C2A7DD9',
-      username: 'engineering@metarouter.io',
-      password: '3#UZMg@wv!p7wnX',
+      "clientId": "3MVG98hdjyNB1QTlnja1yQDO.Hr7idXRUheY0vNfz41r6.54HP5jjyKaqjfFZ7bIfpdF6C8CNHUbDepdtNfKu",
+      "clientSecret": "0E483E670FC69735380284A44894B72076179AC1F14C9E063408F7D65C2A7DD9",
+      "username": "test@metarouter.io",
+      "password": "m3t4r0uter",
+      "events": {
+      	"identify": [
+      		{
+            "salesforce_object": "Lead",
+            "event_name": null,
+	      		"map": {
+              "firstName": "FirstName",
+              "lastName": "LastName",
+	      			"email": "Email",
+	      			"traits.company.name": "Company"
+	      		}
+	      	}
+        ],
+        "track": [
+          {
+            "salesforce_object": "Contact",
+            "event_name": "Sign Up",
+	      		"map": {
+              "properties.firstName": "FirstName",
+              "properties.lastName": "LastName",
+	      			"properties.email": "Email"
+	      		}
+	      	}
+        ]
+      }
     };
     fakedata = {
       type: 'identify',
@@ -17,8 +42,10 @@ describe('Salesforce', () => {
       timestamp: '2014',
       properties: { revenue: 19.99, property: true },
       traits: {
-        name: faker.name.findName(),
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName(),
         email: faker.internet.email(),
+        phone: faker.phone.phoneNumber(),
         company: { name: 'Astronomer' },
       },
     };
@@ -29,7 +56,7 @@ describe('Salesforce', () => {
   it('should have the correct settings', () => {
     test
       .name('Salesforce')
-      .channels(['server', 'mobile'])
+      .channels(['server'])
       .ensure('settings.clientId')
       .ensure('settings.clientSecret')
       .ensure('settings.username')
@@ -87,6 +114,30 @@ describe('Salesforce', () => {
           clientSecret: settings.clientSecret, clientId: settings.clientId, username: settings.username, password: settings.password,
         })
         .identify(fakedata)
+        .requests(1)
+        .expects(201, done);
+    });
+  });
+
+  describe('.track()', () => {
+    it('should create Contacts from Sign Up track event', (done) => {
+      trackdata = {
+        type: 'track',
+        userId: 'user-id',
+        event: 'Sign Up',
+        timestamp: '2014',
+        properties: {
+          firstName: faker.name.firstName(),
+          lastName: "Signup",
+          email: faker.internet.email(),
+          phone: faker.phone.phoneNumber()
+        },
+      }
+      test
+        .set({
+          clientSecret: settings.clientSecret, clientId: settings.clientId, username: settings.username, password: settings.password,
+        })
+        .track(trackdata)
         .requests(1)
         .expects(201, done);
     });
